@@ -23,7 +23,6 @@ export default async function (req, res) {
       max_tokens: 500,
       temperature: 0.3,
     });
-    console.log(completion);
     res.status(200).json({ result: completion.data.choices[0].text });
   } catch (error) {
     if (error.response) {
@@ -44,5 +43,5 @@ function generatePrompt() {
   let letters = "abcdefghijklmnopqrstuvwxyz";
   let index = Math.floor(Math.random() * 26);
   let letter = letters[index];
-  return `Pick a random book whose title starts with ${letter} and summarize it in 2 to 3 sentences`;
+  return `Pick a random historical figure and describe him or her in 2 sentences`;
 }

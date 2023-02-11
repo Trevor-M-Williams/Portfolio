@@ -1,16 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import Card from "../components/Card";
-import Content from "../components/Content";
-import Results from "../components/Results";
-import Loading from "../components/Loading";
+import Card from "../components/typing/Card";
+import Content from "../components/typing/Content";
+import Results from "../components/typing/Results";
+import Loading from "../components/typing/Loading";
 
 function Typing() {
   const [accuracy, setAccuracy] = useState(0);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [prompt, setPrompt] = useState(
-    "A warmup prompt to get the blood flowing."
-  );
+  const [prompt, setPrompt] = useState(" ");
   const [results, setResults] = useState(false);
   const [right, setRight] = useState(0);
   const [score, setScore] = useState();
@@ -20,15 +18,52 @@ function Typing() {
   const [wrong, setWrong] = useState(0);
   const correct = useRef([]);
   const ref = useRef();
+  const usedPrompts = useRef([]);
 
   useEffect(() => {
-    console.log("hello");
     ref.current.focus();
+    fetchPrompt();
   }, []);
 
   useEffect(() => {
     if (index === prompt.length) handleLevelEnd();
   }, [index]);
+
+  async function fetchPrompt() {
+    const response = await fetch("data.json");
+    const data = await response.json();
+    let index = Math.floor(Math.random() * data.length);
+    while (usedPrompts.current.includes(data[index].name))
+      Math.floor(Math.random() * data.length);
+    usedPrompts.current.push(data[index].name);
+    setPrompt(data[index].text);
+  }
+
+  // async function generatePrompt() {
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch("/api/generate", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     const data = await response.json();
+  //     if (response.status !== 200) {
+  //       throw (
+  //         data.error ||
+  //         new Error(`Request failed with status ${response.status}`)
+  //       );
+  //     }
+  //     let newPrompt = data.result.replaceAll("\n", "");
+  //     setPrompt(newPrompt);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert(error.message + "Give the page a refresh and try again.");
+  //   }
+  // }
 
   function handleKeyDown(e) {
     let keys = [
@@ -60,32 +95,6 @@ function Typing() {
     setIndex((index) => index + 1);
   }
 
-  async function generatePrompt() {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-      if (response.status !== 200) {
-        throw (
-          data.error ||
-          new Error(`Request failed with status ${response.status}`)
-        );
-      }
-      let newPrompt = data.result.replaceAll("\n", "");
-      setPrompt(newPrompt);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      alert(error.message + "Give the page a refresh and try again.");
-    }
-  }
-
   function handleLevelEnd() {
     let percent = Math.round((right * 100) / (right + wrong));
     let seconds = (Date.now() - start) / 1000;
@@ -101,7 +110,8 @@ function Typing() {
     setScore(value);
     setResults(true);
     setPrompt("");
-    generatePrompt();
+    // generatePrompt();
+    fetchPrompt();
   }
 
   function handleNext() {
@@ -121,7 +131,9 @@ function Typing() {
       className="absolute inset-0 bg-gray-200 px-8 py-16 focus:outline-none"
     >
       <Card>
-        <Content index={index} prompt={prompt} correct={correct.current} />
+        {!results && (
+          <Content index={index} prompt={prompt} correct={correct.current} />
+        )}
         <Results
           results={results}
           accuracy={accuracy}

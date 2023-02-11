@@ -7,7 +7,10 @@ function Content(props) {
         const bgColors = ["bg-red-300", "bg-green-300"];
         let bgColor = bgColors[props.correct[i]] || " bg-white";
         return (
-          <span key={i} className={`text-xl mr-px ${bgColor}`}>
+          <span
+            key={i}
+            className={`text-3xl leading-[3rem] mr-[0.125rem] ${bgColor}`}
+          >
             {char}
           </span>
         );
