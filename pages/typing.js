@@ -6,6 +6,9 @@ import Loading from "../components/typing/Loading";
 
 function Typing() {
   const [accuracy, setAccuracy] = useState(0);
+  const [highScore, setHighScore] = useState(
+    JSON.parse(localStorage.getItem("highScore")) || 0
+  );
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState(" ");
@@ -32,38 +35,14 @@ function Typing() {
   async function fetchPrompt() {
     const response = await fetch("data.json");
     const data = await response.json();
-    let index = Math.floor(Math.random() * data.length);
-    while (usedPrompts.current.includes(data[index].name))
-      Math.floor(Math.random() * data.length);
-    usedPrompts.current.push(data[index].name);
-    setPrompt(data[index].text);
+    if (usedPrompts.current.length === data.length) usedPrompts.current = [];
+    let i = Math.floor(Math.random() * data.length);
+    while (usedPrompts.current.includes(data[i].name)) {
+      i = Math.floor(Math.random() * data.length);
+    }
+    usedPrompts.current.push(data[i].name);
+    setPrompt(data[i].text);
   }
-
-  // async function generatePrompt() {
-  //   setLoading(true);
-  //   try {
-  //     const response = await fetch("/api/generate", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     const data = await response.json();
-  //     if (response.status !== 200) {
-  //       throw (
-  //         data.error ||
-  //         new Error(`Request failed with status ${response.status}`)
-  //       );
-  //     }
-  //     let newPrompt = data.result.replaceAll("\n", "");
-  //     setPrompt(newPrompt);
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.error(error);
-  //     alert(error.message + "Give the page a refresh and try again.");
-  //   }
-  // }
 
   function handleKeyDown(e) {
     let keys = [
@@ -104,13 +83,16 @@ function Typing() {
       else return a;
     }, 0);
     let value = Math.max(speed * percent - penalties * 100, 0);
+    if (value > highScore) {
+      setHighScore(value);
+      localStorage.setItem("highScore", JSON.stringify(value));
+    }
     setAccuracy(percent + "%");
     setTime(seconds);
     setWPM(speed);
     setScore(value);
     setResults(true);
     setPrompt("");
-    // generatePrompt();
     fetchPrompt();
   }
 
@@ -140,6 +122,7 @@ function Typing() {
           time={time}
           WPM={WPM}
           score={score}
+          highScore={highScore}
           handleNext={handleNext}
         />
         {!results && loading && <Loading />}
