@@ -1,14 +1,25 @@
 import { useEffect, useRef, useState } from "react";
+// import { usePuzzle } from "./Context";
 
 function Level({ children, index, level }) {
   const [bg, setBg] = useState("bg-white");
-
   const panel_1 = useRef(null);
   const panel_2 = useRef(null);
   const content = useRef(null);
   const levelRef = useRef(null);
 
+  useEffect(() => {
+    if (level === index) {
+      fadeLevelIn();
+    } else if (index < level) {
+      fadeLevelOut();
+    } else hideLevel();
+  }, [level]);
+
   function fadeLevelOut() {
+    let timeout = 500;
+    if (level > 0) timeout = 2500;
+
     content.current.classList.add("opacity-0");
     setTimeout(() => {
       fadePanels();
@@ -18,18 +29,21 @@ function Level({ children, index, level }) {
     }, 500);
     setTimeout(() => {
       hideLevel();
-    }, 2500);
+    }, timeout);
   }
 
   function fadeLevelIn() {
+    let timeout = 500;
+    if (level > 0) timeout = 2500;
+
     levelRef.current.classList.remove("hidden");
     setTimeout(() => {
       content.current.classList.remove("opacity-0");
-    }, 2500);
+    }, timeout);
   }
 
   function fadePanels() {
-    setBg("bg-zinc-300");
+    setBg("bg-zinc-100");
   }
 
   function hideLevel() {
@@ -42,25 +56,11 @@ function Level({ children, index, level }) {
     panel_2.current.classList.add("translate-x-full");
   }
 
-  useEffect(() => {
-    if (index > level) {
-      hideLevel();
-      return;
-    }
-    if (level === index) {
-      fadeLevelIn();
-      return;
-    }
-    if (index < level) {
-      fadeLevelOut();
-      return;
-    }
-  }, [level]);
-
   return (
     <div
       ref={levelRef}
-      className="absolute inset-0 flex items-center justify-center overflow-hidden"
+      className={`absolute inset-0 flex items-center justify-center overflow-hidden`}
+      style={{ zIndex: index }}
     >
       <div
         ref={panel_1}

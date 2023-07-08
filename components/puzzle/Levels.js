@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Level from "./Level";
 import Keypad from "./Keypad";
 import { BsLightbulbFill } from "react-icons/bs";
+import { P } from "../Typography";
 
-function Level0({ level, setLevel }) {
+function Feature1({ index, level, setLevel }) {
   const [input, setInput] = useState("");
   const overlayRef = useRef(null);
 
@@ -26,9 +27,9 @@ function Level0({ level, setLevel }) {
   }
 
   return (
-    <Level index={0} level={level}>
+    <Level index={index} level={level}>
       <Keypad
-        index={0}
+        index={index}
         input={input}
         level={level}
         setInput={setInput}
@@ -49,8 +50,21 @@ function Level0({ level, setLevel }) {
   );
 }
 
-function Level1({ level, setLevel }) {
+function Quote1({ index, level, setLevel }) {
   const [input, setInput] = useState("");
+  const quoteRef = useRef(null);
+
+  useEffect(() => {
+    if (level !== index) return;
+    fadeQuote();
+  }, [level]);
+
+  function fadeQuote() {
+    quoteRef.current.classList.add("opacity-0");
+    setTimeout(() => {
+      quoteRef.current.classList.remove("opacity-0");
+    }, 250);
+  }
 
   function validateInput() {
     if (input.length !== 4) return;
@@ -73,9 +87,19 @@ function Level1({ level, setLevel }) {
   }
 
   return (
-    <Level index={1} level={level}>
+    <Level index={index} level={level}>
+      <div
+        ref={quoteRef}
+        className="absolute w-full top-[7vh] transition-opacity duration-500"
+      >
+        <P
+          text="Lost time is never found again."
+          styles="text-center text-2xl"
+        />
+        <P text="- Benjamin Franklin" styles="text-center text-xl" />
+      </div>
       <Keypad
-        index={1}
+        index={index}
         input={input}
         level={level}
         setInput={setInput}
@@ -85,4 +109,4 @@ function Level1({ level, setLevel }) {
   );
 }
 
-export { Level0, Level1 };
+export { Feature1, Quote1 };
